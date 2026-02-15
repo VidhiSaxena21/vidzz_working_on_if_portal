@@ -6,6 +6,7 @@ import { useAuthStore } from '@/lib/store/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { Loader2, User, Building2, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,8 +19,10 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const [step, setStep] = useState<'role' | 'form'>('role');
+  const [step, setStep] = useState<'role' | 'form' | 'otp'>('role');
   const [role, setRole] = useState<'student' | 'company'>('student');
+  const [otp, setOtp] = useState('');
+  const [storedProfileData, setStoredProfileData] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -67,21 +70,73 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
         industry: formData.industry,
         website: formData.website,
         address: formData.address,
+        name: formData.companyName,
       };
+
+      // Store profile data for OTP verification step
+      setStoredProfileData(roleSpecificData);
 
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...baseData, ...roleSpecificData }),
+        body: JSON.stringify(baseData),
       });
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Registration failed');
 
-      useAuthStore.getState().setAuth(data.token, data.role, data.user);
-      router.push(`/${role}/dashboard`);
+      // Move to OTP verification step
+      setStep('otp');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: formData.email, 
+          otp,
+          profileData: storedProfileData 
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'OTP verification failed');
+
+      useAuthStore.getState().setAuth(data.token, data.role, data.user, data.profile);
+      router.push(`/${data.role}/dashboard`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'OTP verification failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/resend-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to resend OTP');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to resend OTP. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -93,22 +148,38 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
         <div className="flex items-center justify-between">
           <button
             type="button"
-            onClick={step === 'form' ? () => setStep('role') : onSwitchToLogin}
+            onClick={
+              step === 'form'
+                ? () => setStep('role')
+                : step === 'otp'
+                  ? () => setStep('role')
+                  : onSwitchToLogin
+            }
             className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
-            {step === 'form' ? 'Role Selection' : 'Sign In'}
+            {step === 'role' ? 'Sign In' : 'Role Selection'}
           </button>
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
             <div className="h-1 w-1 rounded-full bg-cyan-400" />
-            <span className="text-[8px] font-black uppercase tracking-widest text-cyan-400">Step {step === 'role' ? '01' : '02'}</span>
+            <span className="text-[8px] font-black uppercase tracking-widest text-cyan-400">
+              Step {step === 'role' ? '01' : step === 'form' ? '02' : '03'}
+            </span>
           </div>
         </div>
         <h2 className="text-3xl font-black tracking-tighter text-foreground">
-          {step === 'role' ? 'Initialize Identity' : `Profile Configuration`}
+          {step === 'role'
+            ? 'Initialize Identity'
+            : step === 'form'
+              ? `Profile Configuration`
+              : 'Verify Identity'}
         </h2>
         <p className="text-muted-foreground font-medium text-sm">
-          {step === 'role' ? 'Select your operational role within the ecosystem.' : `Establishing your credentials as a ${role}.`}
+          {step === 'role'
+            ? 'Select your operational role within the ecosystem.'
+            : step === 'form'
+              ? `Establishing your credentials as a ${role}.`
+              : `Enter the verification code sent to ${formData.email}.`}
         </p>
       </div>
 
@@ -155,7 +226,7 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               <ArrowRight className="h-5 w-5 text-zinc-700 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
             </button>
           </motion.div>
-        ) : (
+        ) : step === 'form' ? (
           <motion.form
             key="registration-form"
             initial={{ opacity: 0, x: 20 }}
@@ -234,6 +305,69 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
                 </>
               )}
             </Button>
+          </motion.form>
+        ) : (
+          <motion.form
+            key="otp-form"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            onSubmit={handleVerifyOtp}
+            className="space-y-6"
+          >
+            <div className="space-y-4">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                One-Time Passcode
+              </Label>
+              <InputOTP
+                maxLength={6}
+                value={otp}
+                onChange={(value) => setOtp(value)}
+                containerClassName="justify-center"
+                autoFocus
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+              <p className="text-[10px] text-muted-foreground text-center">
+                Enter the 6-digit code we sent to your registered email address.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <Button
+                type="submit"
+                className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 rounded-xl font-black uppercase tracking-widest transition-all shadow-xl shadow-foreground/10 group font-sans"
+                disabled={isLoading || otp.length !== 6}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    Verifying Code...
+                  </>
+                ) : (
+                  <>
+                    Verify Identity
+                    <CheckCircle2 className="ml-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                  </>
+                )}
+              </Button>
+
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors mx-auto"
+                disabled={isLoading}
+              >
+                Resend Verification Code
+              </button>
+            </div>
           </motion.form>
         )}
       </AnimatePresence>
