@@ -4,8 +4,8 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const Student = require('../models/Student');
 const Company = require('../models/Company');
-const generateOTP = require('../utils/generateOtp');
-const sendEmail = require('../utils/sendEmail');
+const { sendEmail, generateOTP } = require('../utils/workingEmailService');
+const { generateAndLogOTP } = require('../utils/consoleOTP');
 
 
 // =============================
@@ -80,11 +80,18 @@ const registerUser = asyncHandler(async (req, res) => {
   const userExists = await User.findOne({ email });
 
   if (userExists) {
-    res.status(400);
-    throw new Error('User already exists');
+    // If user exists but is not verified, delete and allow fresh registration
+    if (!userExists.isVerified) {
+      await User.deleteOne({ _id: userExists._id });
+      console.log(`Deleted unverified user: ${email}`);
+    } else {
+      // User exists and is verified
+      res.status(400);
+      throw new Error('User already exists');
+    }
   }
 
-  // Create user (unverified by default)
+  // Create user (unverified by default) - NO PROFILE CREATION YET
   const user = await User.create({
     name,
     email,
@@ -93,41 +100,58 @@ const registerUser = asyncHandler(async (req, res) => {
     isVerified: false,
   });
 
-  // Create role-based profile
-  if (role.toLowerCase() === 'student') {
-    await Student.create({
-      userId: user._id,
-      rollNo: profileData.rollNo || 'N/A',
-      branch: profileData.branch || 'N/A',
-      year: profileData.year || 'N/A',
-      cgpa: 0,
-    });
-  } else if (role.toLowerCase() === 'company') {
-    await Company.create({
-      userId: user._id,
-      name: profileData.name || user.name,
-      description: profileData.industry || 'Tech',
-      website: profileData.website || 'http://example.com',
-      verified: false,
-    });
-  }
-
   // Generate OTP
   const otp = generateOTP();
+  const emailHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center;">
+        <h2 style="color: white; margin: 0; font-size: 24px;">Email Verification</h2>
+        <p style="color: rgba(255,255,255,0.9); margin: 20px 0; font-size: 16px;">
+          Your One-Time Password (OTP) for account verification is:
+        </p>
+        <div style="background: white; color: #333; font-size: 32px; font-weight: bold; 
+                    padding: 20px; border-radius: 8px; letter-spacing: 5px; margin: 20px 0;">
+          ${otp}
+        </div>
+        <p style="color: rgba(255,255,255,0.8); margin: 20px 0 0 0; font-size: 14px;">
+          This OTP expires in 10 minutes. Please do not share this code with anyone.
+        </p>
+      </div>
+      <div style="text-align: center; margin-top: 30px; color: #666; font-size: 12px;">
+        <p>© 2024 Internship Portal. All rights reserved.</p>
+      </div>
+    </div>
+  `;
 
-  user.otp = await bcrypt.hash(otp, 10);
+  const otpResult = await sendEmail(
+    user.email,
+    'Verify Your Account - OTP Code',
+    `Your OTP is ${otp}. It expires in 10 minutes.`,
+    emailHtml
+  );
+
+  if (!otpResult.success) {
+    console.error('Failed to send OTP email:', otpResult.error);
+    res.status(500);
+    throw new Error('Failed to send verification email. Please try again.');
+  }
+
+  // Use OTP from email service if available, otherwise use generated one
+  const finalOtp = otpResult.otp || otp;
+  
+  // Log the final OTP for user
+  console.log('==========================================');
+  console.log(' FINAL OTP FOR', user.email, ':', finalOtp);
+  console.log('==========================================');
+
+  user.otp = await bcrypt.hash(finalOtp, 10);
   user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
   await user.save();
 
-  // Send OTP Email
-  await sendEmail(
-    user.email,
-    'Verify Your Account',
-    `Your OTP is ${otp}. It expires in 10 minutes.`
-  );
-
   res.status(201).json({
-    message: 'User registered successfully. Please verify OTP sent to your email.',
+    message: 'Registration successful. Please verify the OTP sent to your email.',
+    requiresVerification: true,
+    email: user.email,
   });
 });
 
@@ -136,7 +160,7 @@ const registerUser = asyncHandler(async (req, res) => {
 // VERIFY OTP
 // =============================
 const verifyOtp = asyncHandler(async (req, res) => {
-  const { email, otp } = req.body;
+  const { email, otp, profileData } = req.body;
 
   const user = await User.findOne({ email });
 
@@ -167,15 +191,45 @@ const verifyOtp = asyncHandler(async (req, res) => {
     throw new Error('Invalid OTP');
   }
 
-  // Mark verified
+  // Mark verified and create profile NOW
   user.isVerified = true;
   user.otp = undefined;
   user.otpExpires = undefined;
   await user.save();
 
+  // Create role-based profile only after verification
+  let profile = null;
+  const role = user.role.toUpperCase();
+
+  if (role === 'STUDENT') {
+    profile = await Student.create({
+      userId: user._id,
+      rollNo: profileData?.rollNo || 'N/A',
+      branch: profileData?.branch || 'N/A',
+      year: profileData?.year || 'N/A',
+      cgpa: 0,
+    });
+  } else if (role === 'COMPANY') {
+    profile = await Company.create({
+      userId: user._id,
+      name: profileData?.name || user.name,
+      description: profileData?.industry || 'Tech',
+      website: profileData?.website || 'http://example.com',
+      verified: false,
+    });
+  }
+
   res.json({
     message: 'Account verified successfully',
     token: generateToken(user._id),
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role.toLowerCase(),
+    },
+    role: user.role.toLowerCase(),
+    profile,
   });
 });
 
@@ -206,7 +260,22 @@ const resendOtp = asyncHandler(async (req, res) => {
   await sendEmail(
     user.email,
     'Resend OTP',
-    `Your new OTP is ${otp}. It expires in 10 minutes.`
+    `Your new OTP is ${otp}. It expires in 10 minutes.`,
+    `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 30px; border-radius: 10px; text-align: center;">
+        <h2 style="color: white; margin: 0; font-size: 24px;">Resend OTP</h2>
+        <p style="color: rgba(255,255,255,0.9); margin: 20px 0; font-size: 16px;">
+          Your new One-Time Password (OTP) is:
+        </p>
+        <div style="background: white; color: #333; font-size: 32px; font-weight: bold; 
+                    padding: 20px; border-radius: 8px; letter-spacing: 5px; margin: 20px 0;">
+          ${otp}
+        </div>
+        <p style="color: rgba(255,255,255,0.8); margin: 20px 0 0 0; font-size: 14px;">
+          This OTP expires in 10 minutes.
+        </p>
+      </div>
+    </div>`
   );
 
   res.json({ message: 'OTP resent successfully' });
