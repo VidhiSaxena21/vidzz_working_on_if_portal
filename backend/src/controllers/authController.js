@@ -137,7 +137,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // Use OTP from email service if available, otherwise use generated one
-  const finalOtp = otpResult.otp || otp;
+  const finalOtp = otp;
   
   // Log the final OTP for user
   console.log('==========================================');
