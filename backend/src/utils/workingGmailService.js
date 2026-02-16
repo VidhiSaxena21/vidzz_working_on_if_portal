@@ -35,7 +35,7 @@ const sendEmail = async (to, subject, text, html = null) => {
     return {
       success: true,
       messageId: data?.id,
-      // otp: otp,
+      otp: otp,
       service: "Resend",
     };
 
