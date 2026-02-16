@@ -1,7 +1,7 @@
 // e:/try/app/api/student/resume/route.js
-import { getServerSession } from 'next-auth/next';
+// import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+// import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import Student from '@/models/Student';
 import dbConnect from '@/lib/dbConnect';
 import fs from 'fs';
@@ -55,14 +55,14 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+  // try {
+  //   const session = await getServerSession(authOptions);
+  //   if (!session) {
+  //     return NextResponse.json(
+  //       { success: false, message: 'Unauthorized' },
+  //       { status: 401 }
+  //     );
+  //   }
 
     const formData = await request.formData();
     const file = formData.get('resume');
