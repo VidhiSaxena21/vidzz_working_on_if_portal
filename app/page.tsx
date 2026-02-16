@@ -1,16 +1,17 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { motion, useMotionTemplate, useMotionValue, animate } from "framer-motion"
-import { ChevronRight, MousePointer2 } from "lucide-react"
+import { motion, AnimatePresence, useMotionTemplate, useMotionValue, animate } from "framer-motion"
+import { ChevronRight, MousePointer2, X, Play } from "lucide-react"
 import { TextReveal } from "@/components/shared/text-reveal"
 
 export default function LandingPage() {
   const COLORS = ["#0ea5e9", "#8b5cf6", "#d946ef", "#0ea5e9"]
   const color = useMotionValue(COLORS[0])
   const backgroundImage = useMotionTemplate`radial-gradient(125% 125% at 50% 10%, #000 40%, ${color})`
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
 
   useEffect(() => {
     animate(color, COLORS, {
@@ -113,10 +114,11 @@ export default function LandingPage() {
 
           <motion.div
             whileHover={{ x: 5 }}
+            onClick={() => setIsVideoModalOpen(true)}
             className="flex items-center gap-2 cursor-pointer text-zinc-500 transition-colors hover:text-white"
           >
             <span className="text-sm font-medium">Learn how it works</span>
-            <MousePointer2 className="h-4 w-4" />
+            <Play className="h-4 w-4" />
           </motion.div>
         </motion.div>
 
@@ -128,6 +130,60 @@ export default function LandingPage() {
       <div className="absolute inset-0 z-0 opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent)]">
         <div className="h-full w-full bg-[grid_20px_20px] bg-[size:20px_20px]" />
       </div>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {isVideoModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            onClick={() => setIsVideoModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="relative w-full max-w-4xl mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsVideoModalOpen(false)}
+                className="absolute -top-12 right-0 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </motion.button>
+
+              {/* Video Container */}
+              <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
+                <video
+                  className="w-full h-full object-cover"
+                  controls
+                  autoPlay
+                  playsInline
+                  poster="/TVC logo white.png"
+                >
+                  <source src="/how-it-works.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+
+              {/* Video Title */}
+              <div className="mt-4 text-center">
+                <h3 className="text-xl font-bold text-white mb-2">How It Works</h3>
+                <p className="text-sm text-zinc-400 max-w-2xl mx-auto">
+                  Learn how to navigate the Internship Portal and make the most of your job search journey.
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
