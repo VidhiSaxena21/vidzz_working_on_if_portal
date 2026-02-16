@@ -151,7 +151,7 @@ export default function CompanyProfilePage() {
     }
   };
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL
 
   return (
     <div className="p-6 lg:p-10 max-w-7xl mx-auto space-y-10 min-h-screen">
