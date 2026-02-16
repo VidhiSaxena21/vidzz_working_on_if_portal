@@ -8,7 +8,7 @@ const generateOTP = () => {
 
 const sendEmail = async (to, subject, text, html = null) => {
   try {
-    const otp = generateOTP();
+    // const otp = generateOTP();
 
     console.log('==========================================');
     console.log('🔐 YOUR OTP IS:', otp);
@@ -35,7 +35,7 @@ const sendEmail = async (to, subject, text, html = null) => {
     return {
       success: true,
       messageId: data?.id,
-      otp: otp,
+      // otp: otp,
       service: "Resend",
     };
 
