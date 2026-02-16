@@ -77,14 +77,14 @@ export default function LandingPage() {
         <TextReveal
           text="Internship Fair"
           glowWords={["Fair"]}
-          className="max-w-4xl text-center text-5xl font-bold tracking-tight text-white sm:text-7xl md:text-8xl"
+          className="max-w-4xl text-center text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
         />
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-8 max-w-2xl text-center text-lg leading-relaxed text-zinc-400 sm:text-xl"
+          className="mt-8 max-w-2xl text-center text-base leading-relaxed text-zinc-400 sm:text-lg md:text-xl"
         >
           Shape Your Future with Elite Internships
         </motion.p>
@@ -93,13 +93,13 @@ export default function LandingPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 1.2 }}
-          className="mt-12 flex flex-col items-center gap-6 sm:flex-row"
+          className="mt-12 flex flex-col items-center gap-4 px-4 sm:gap-6 sm:flex-row sm:px-0"
         >
           <Link href="/login">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="group relative flex items-center gap-2 overflow-hidden rounded-full bg-white px-8 py-4 text-black transition-all hover:bg-zinc-100"
+              className="group relative flex items-center gap-2 overflow-hidden rounded-full bg-white px-6 py-3 text-sm text-black transition-all hover:bg-zinc-100 sm:px-8 sm:py-4 sm:text-base"
             >
               <span className="relative z-10 font-bold">Get Started Now</span>
               <ChevronRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -115,10 +115,10 @@ export default function LandingPage() {
           <motion.div
             whileHover={{ x: 5 }}
             onClick={() => setIsVideoModalOpen(true)}
-            className="flex items-center gap-2 cursor-pointer text-zinc-500 transition-colors hover:text-white"
+            className="flex items-center gap-2 cursor-pointer text-zinc-500 transition-colors hover:text-white px-4 py-2"
           >
-            <span className="text-sm font-medium">Learn how it works</span>
-            <Play className="h-4 w-4" />
+            <span className="text-xs font-medium sm:text-sm">Learn how it works</span>
+            <Play className="h-3 w-3 sm:h-4 sm:w-4" />
           </motion.div>
         </motion.div>
 
@@ -146,7 +146,7 @@ export default function LandingPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", duration: 0.5 }}
-              className="relative w-full max-w-4xl mx-4"
+              className="relative w-full max-w-4xl mx-2 sm:mx-4"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
@@ -174,9 +174,9 @@ export default function LandingPage() {
               </div>
 
               {/* Video Title */}
-              <div className="mt-4 text-center">
-                <h3 className="text-xl font-bold text-white mb-2">How It Works</h3>
-                <p className="text-sm text-zinc-400 max-w-2xl mx-auto">
+              <div className="mt-4 text-center px-2">
+                <h3 className="text-lg font-bold text-white mb-2 sm:text-xl">How It Works</h3>
+                <p className="text-xs text-zinc-400 max-w-2xl mx-auto sm:text-sm">
                   Learn how to navigate the Internship Portal and make the most of your job search journey.
                 </p>
               </div>

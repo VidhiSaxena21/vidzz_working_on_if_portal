@@ -20,12 +20,15 @@ import {
   ChevronRight,
   Info,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  Menu,
+  X
 } from "lucide-react"
 import { toast } from "sonner"
 import { studentApi } from "@/lib/api/student"
 import { GlassCard } from "@/components/shared/glass-card"
 import { motion, AnimatePresence } from "framer-motion"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function CompanyDetailsPage() {
@@ -33,6 +36,8 @@ export default function CompanyDetailsPage() {
   const router = useRouter()
   const companyId = params.id as string
   const { token } = useAuthStore()
+  const { user } = useAuthStore()
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
 
   const [company, setCompany] = useState<any>(null)
   const [roles, setRoles] = useState<any[]>([])
@@ -160,6 +165,25 @@ export default function CompanyDetailsPage() {
         animate={{ opacity: 1, y: 0 }}
         className="relative overflow-hidden rounded-[32px] border border-border bg-foreground/5 p-8 lg:p-12"
       >
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
+              <Sparkles className="h-5 w-5 text-cyan-500" />
+            </div>
+            <h1 className="text-xl font-bold text-foreground">Quick Apply</h1>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            className="lg:hidden"
+          >
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">Toggle Menu</span>
+          </Button>
+        </div>
+
         <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 lg:gap-12">
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -299,9 +323,21 @@ export default function CompanyDetailsPage() {
           </section>
         </div>
 
+        {/* Mobile Sidebar */}
+        <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
+          <SheetContent
+            data-sidebar="sidebar"
+            data-mobile="true"
+            className="w-[280px] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            side="left"
+          >
+            <div className="flex h-full w-full flex-col">{children}</div>
+          </SheetContent>
+        </Sheet>
+
         {/* Sidebar Application */}
         <div className="lg:sticky lg:top-10">
-          <GlassCard className="p-8 border-border bg-card/50 shadow-2xl">
+          <GlassCard className="p-6 sm:p-8 border-border bg-card/50 shadow-2xl">
             <div className="space-y-2 mb-8 text-center lg:text-left">
               <h3 className="text-2xl font-bold text-foreground">Apply</h3>
               <p className="text-muted-foreground text-sm font-medium leading-relaxed">

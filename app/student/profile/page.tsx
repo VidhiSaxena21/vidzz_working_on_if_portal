@@ -111,7 +111,7 @@ export default function StudentProfilePage() {
       setIsUploading(true)
       const data = await studentApi.uploadResume(file)
       if (data.success) {
-        setUploadedResumeUrl(`${process.env.NEXT_PUBLIC_BACKEND_URL}${data.resume}`)
+        setUploadedResumeUrl(`${process.env.NEXT_PUBLIC_API_URL}${data.resume}`)
         toast.success("Resume uploaded successfully! 📁")
       }
     } catch (err) {
@@ -138,34 +138,34 @@ export default function StudentProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-10 max-w-7xl mx-auto space-y-10 min-h-screen flex flex-col items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-cyan-500" />
+    <div className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto space-y-10 min-h-screen flex flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-cyan-500" />
         <p className="text-zinc-500 font-medium tracking-widest uppercase text-xs">Synchronizing profile data...</p>
       </div>
     )
   }
 
   return (
-    <div className="p-6 lg:p-10 max-w-7xl mx-auto space-y-10 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto space-y-10 min-h-screen">
       {/* Header & Progress */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 bg-foreground/5 border border-border rounded-[32px] p-8 lg:p-12 relative overflow-hidden"
+        className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8 bg-foreground/5 border border-border rounded-[32px] p-6 sm:p-8 lg:p-12 relative overflow-hidden"
       >
         <div className="relative z-10 space-y-4">
           <div className="flex items-center gap-2 text-cyan-500">
             <Sparkles className="h-4 w-4" />
             <span className="text-[10px] font-bold tracking-[0.2em] uppercase">User Details</span>
           </div>
-          <h1 className="text-4xl lg:text-5xl font-black text-foreground tracking-tight">Student Profile</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-foreground tracking-tight">Student Profile</h1>
           <p className="text-muted-foreground font-medium">Manage your professional credentials and academic summary.</p>
         </div>
 
         <div className="relative z-10 w-full lg:w-72 space-y-3">
           <div className="flex justify-between items-end">
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Completion</span>
-            <span className="text-2xl font-black text-cyan-500">{completion}%</span>
+            <span className="text-xl sm:text-2xl font-black text-cyan-500">{completion}%</span>
           </div>
           <Progress value={completion} className="h-2 bg-foreground/5" />
           <p className="text-[10px] text-muted-foreground/50 font-medium text-right uppercase tracking-[0.1em]">Verified Profile Status</p>
@@ -179,12 +179,12 @@ export default function StudentProfilePage() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-1 lg:grid-cols-3 gap-10"
+        className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8"
       >
-        <div className="lg:col-span-2 space-y-10">
+        <div className="xl:col-span-2 space-y-6 lg:space-y-10">
           {/* Academic Info */}
           <motion.div variants={itemVariants}>
-            <GlassCard className="p-8 space-y-8 border-border bg-card/50">
+            <GlassCard className="p-6 sm:p-8 space-y-6 sm:space-y-8 border-border bg-card/50">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
                   <GraduationCap className="h-5 w-5 text-cyan-500" />
@@ -192,14 +192,14 @@ export default function StudentProfilePage() {
                 <h2 className="text-xl font-bold text-foreground tracking-tight">Academic Details</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mt-6">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Full Name</Label>
                   <Input
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
+                    className="h-10 sm:h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
                   />
                 </div>
                 <div className="space-y-2">
@@ -213,7 +213,7 @@ export default function StudentProfilePage() {
                     value={formData.rollNo}
                     onChange={handleInputChange}
                     placeholder="21BCS001"
-                    className="h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
+                    className="h-10 sm:h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
                   />
                 </div>
                 <div className="space-y-2">
@@ -223,7 +223,7 @@ export default function StudentProfilePage() {
                     value={formData.branch}
                     onChange={handleInputChange}
                     placeholder="Computer Science"
-                    className="h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
+                    className="h-10 sm:h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
                   />
                 </div>
                 <div className="space-y-2">
@@ -233,7 +233,7 @@ export default function StudentProfilePage() {
                     value={formData.year}
                     onChange={handleInputChange}
                     placeholder="3rd Year"
-                    className="h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
+                    className="h-10 sm:h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
                   />
                 </div>
                 <div className="space-y-2">
@@ -245,7 +245,7 @@ export default function StudentProfilePage() {
                     value={formData.cgpa}
                     onChange={handleInputChange}
                     placeholder="8.50"
-                    className="h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
+                    className="h-10 sm:h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
                   />
                 </div>
               </div>
@@ -281,7 +281,7 @@ export default function StudentProfilePage() {
                     value={formData.skills}
                     onChange={handleInputChange}
                     placeholder="React, Node.js, Python"
-                    className="h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
+                    className="h-10 sm:h-12 bg-foreground/5 border-border rounded-2xl text-foreground focus:ring-cyan-500/50"
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -320,14 +320,14 @@ export default function StudentProfilePage() {
         {/* Sidebar */}
         <div className="space-y-10">
           <motion.div variants={itemVariants}>
-            <GlassCard className="p-8 border-border bg-card/50 shadow-2xl">
+            <GlassCard className="p-6 sm:p-8 border-border bg-card/50 shadow-2xl">
               <div className="space-y-2 mb-8">
                 <h3 className="text-xl font-bold text-foreground">Resume</h3>
                 <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">Document</p>
               </div>
 
               <div className="space-y-6">
-                <div className="relative group border-2 border-dashed border-border rounded-[28px] p-10 transition-all hover:border-cyan-500/50 hover:bg-cyan-500/[0.02] flex flex-col items-center">
+                <div className="relative group border-2 border-dashed border-border rounded-[28px] p-6 sm:p-8 sm:p-10 transition-all hover:border-cyan-500/50 hover:bg-cyan-500/[0.02] flex flex-col items-center">
                   <Input
                     type="file"
                     accept=".pdf"

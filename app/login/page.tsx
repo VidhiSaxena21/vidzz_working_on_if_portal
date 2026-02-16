@@ -77,7 +77,7 @@ export default function AuthPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="w-full max-w-[1000px] grid lg:grid-cols-2 gap-0 relative z-10"
+            className="w-full max-w-[1000px] grid grid-cols-1 lg:grid-cols-2 gap-0 relative z-10"
           >
             {/* Left Side: Branding */}
             <div className="hidden lg:flex flex-col justify-between p-12 bg-white/[0.02] dark:bg-black/20 border-y border-l border-white/10 rounded-l-[32px] backdrop-blur-md">
@@ -116,10 +116,10 @@ export default function AuthPage() {
             </div>
 
             {/* Right Side: Form */}
-            <GlassCard className="p-8 lg:p-12 border-white/10 rounded-[32px] lg:rounded-l-none shadow-2xl flex flex-col justify-center">
-              <div className="space-y-8">
+            <GlassCard className="p-6 sm:p-8 lg:p-12 border-white/10 rounded-[32px] lg:rounded-l-none shadow-2xl flex flex-col justify-center">
+              <div className="space-y-6 sm:space-y-8">
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-black tracking-tight text-foreground">Login to your account</h2>
+                  <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">Login to your account</h2>
                   <p className="text-muted-foreground font-medium"></p>
                 </div>
 
