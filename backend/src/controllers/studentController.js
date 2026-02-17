@@ -82,7 +82,7 @@ const applyJob = asyncHandler(async (req, res) => {
       throw new Error('No existing resume found in your profile. Please upload one.');
     }
     resumeUrl = student.resumeUrl;
-  } } else {
+  } else {
       if (!req.file) {
         res.status(400);
         throw new Error('Resume file is required');
