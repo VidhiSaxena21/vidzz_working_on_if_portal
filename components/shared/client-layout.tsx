@@ -15,7 +15,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
             defaultTheme="dark"
             enableSystem
         >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="sync">
                 <motion.main
                     key={pathname}
                     initial={{ opacity: 0, y: 10 }}
