@@ -49,7 +49,18 @@ export default function AuthPage() {
 
       const userRole = data.role.toLowerCase();
       const { setAuth } = useAuthStore.getState();
-      setAuth(data.token, userRole, data.user, data.profile);
+
+      setAuth(
+        data.token,
+        userRole,
+        {
+          id: data._id,
+          name: data.name,
+          email: data.email,
+        },
+        data.profile
+      );
+
 
       window.location.href = `/${userRole}/dashboard`;
     } catch (err) {
