@@ -26,7 +26,7 @@ router.get('/companies', getCompanies);
 router.get('/company/:id', getCompany);
 router.get('/roles', getAllRoles);
 //router.post('/apply', (req, res, next) => { req.uploadDir = 'uploads/application'; next(); }, upload.single('resume'), applyJob);
-router.post('/apply', applyJob);
+router.post('/apply', upload.single('resume'), applyJob);
 router.get('/applications', getApplications);
 router.get('/profile', getProfile);
 router.put('/profile', upload.single('resume'), updateProfile); // Optional resume update in profile?
