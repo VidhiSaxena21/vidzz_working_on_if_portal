@@ -198,8 +198,21 @@ const updateProfile = asyncHandler(async (req, res) => {
     student.skills = skillsArray;
 
     if (req.file) {
-      student.resumeUrl = `/uploads/resumes/${req.file.filename}`;
+      const result = await cloudinary.uploader.upload(
+        req.file.path,
+        {
+          resource_type: "raw",
+          folder: "internship-portal",
+          public_id: `resume-${Date.now()}`
+        }
+      );
+    
+      const fs = require("fs");
+      fs.unlinkSync(req.file.path);
+    
+      student.resumeUrl = result.secure_url;
     }
+
 
     const updatedStudent = await student.save();
     res.json({ success: true, data: updatedStudent });
@@ -216,7 +229,7 @@ const updateProfile = asyncHandler(async (req, res) => {
       github: github || '',
       linkedin: linkedin || '',
       skills: skillsArray,
-      resumeUrl: req.file ? `/uploads/resumes/${req.file.filename}` : ''
+      resumeUrl: ''
     });
     res.status(201).json({ success: true, data: student });
   }
@@ -225,33 +238,45 @@ const updateProfile = asyncHandler(async (req, res) => {
 // @route   POST /api/student/resume
 // @access  Private (any authenticated user)
 const uploadResume = asyncHandler(async (req, res) => {
+
   if (!req.file) {
     res.status(400);
     throw new Error('Resume file is required');
   }
 
-  // Create or update student profile with resume
+  const result = await cloudinary.uploader.upload(
+    req.file.path,
+    {
+      resource_type: "raw",
+      folder: "internship-portal",
+      public_id: `resume-${Date.now()}`
+    }
+  );
+
+  const fs = require("fs");
+  fs.unlinkSync(req.file.path);
+
   let student = await Student.findOne({ userId: req.user._id });
 
   if (!student) {
-    // Create minimal student profile if it doesn't exist
     student = await Student.create({
       userId: req.user._id,
       rollNo: 'N/A',
       branch: 'N/A',
       year: 'N/A',
       cgpa: 0,
-      resumeUrl: `/uploads/resumes/${req.file.filename}`
+      resumeUrl: result.secure_url
     });
-    return res.status(201).json({ success: true, resume: student.resumeUrl });
+
+    return res.status(201).json({ success: true, resume: result.secure_url });
   }
 
-  // Update existing student's resume
-  student.resumeUrl = `/uploads/resumes/${req.file.filename}`;
+  student.resumeUrl = result.secure_url;
   await student.save();
 
-  res.json({ success: true, resume: student.resumeUrl });
+  res.json({ success: true, resume: result.secure_url });
 });
+
 
 module.exports = {
   getCompanies,
