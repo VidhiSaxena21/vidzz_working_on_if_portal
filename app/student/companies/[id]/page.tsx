@@ -30,6 +30,7 @@ import { GlassCard } from "@/components/shared/glass-card"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 export default function CompanyDetailsPage() {
   const params = useParams()
@@ -48,7 +49,9 @@ export default function CompanyDetailsPage() {
   const [existingResume, setExistingResume] = useState<{ name: string; url: string } | null>(null)
   const [appliedRoleIds, setAppliedRoleIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedRoleForDialog, setSelectedRoleForDialog] = useState<any>(null)
+  
   useEffect(() => {
     if (!token) return
 
@@ -117,7 +120,12 @@ export default function CompanyDetailsPage() {
       setIsSubmitting(false)
     }
   }
-
+  
+  const handleRoleClick = (role: any) => {
+    setSelectedRoleForDialog(role)
+    setIsDialogOpen(true)
+  }
+  
   if (loading) {
     return (
       <div className="p-6 lg:p-10 max-w-7xl mx-auto space-y-10 min-h-screen">
@@ -276,7 +284,7 @@ export default function CompanyDetailsPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.1 }}
-                      onClick={() => setSelectedRole(role)}
+                       onClick={() => handleRoleClick(role)}
                       className={`group relative cursor-pointer rounded-3xl border transition-all duration-300 p-8 ${selectedRole?._id === role._id
                         ? 'border-cyan-500 bg-cyan-500/5'
                         : 'border-border bg-card/50 hover:border-border hover:bg-foreground/[0.04]'
@@ -467,6 +475,75 @@ export default function CompanyDetailsPage() {
           </GlassCard>
         </div>
       </div>
+      
+      {/* Job Description Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-foreground">
+              {selectedRoleForDialog?.title}
+            </DialogTitle>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <div className="flex items-center gap-2 bg-foreground/5 border border-border px-4 py-1.5 rounded-2xl text-muted-foreground text-xs font-medium">
+                {selectedRoleForDialog?.currency === 'USD' ? <DollarSign className="h-3.5 w-3.5 text-emerald-500" /> : <IndianRupee className="h-3.5 w-3.5 text-emerald-500" />}
+                {selectedRoleForDialog?.stipend} / month
+              </div>
+              <div className="flex items-center gap-2 bg-foreground/5 border border-border px-4 py-1.5 rounded-2xl text-muted-foreground text-xs font-medium">
+                <CheckCircle className="h-3.5 w-3.5 text-cyan-500" />
+                {selectedRoleForDialog?.eligibility}
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="mt-6 space-y-6">
+            <div>
+              <h4 className="text-lg font-semibold text-foreground mb-3">Role Description</h4>
+              <div className="prose prose-invert max-w-none">
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                  {selectedRoleForDialog?.description || "No description available."}
+                </p>
+              </div>
+            </div>
+            {selectedRoleForDialog?.requirements && (
+              <div>
+                <h4 className="text-lg font-semibold text-foreground mb-3">Requirements</h4>
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {selectedRoleForDialog.requirements}
+                  </p>
+                </div>
+              </div>
+            )}
+            {selectedRoleForDialog?.responsibilities && (
+              <div>
+                <h4 className="text-lg font-semibold text-foreground mb-3">Responsibilities</h4>
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {selectedRoleForDialog.responsibilities}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="mt-8 flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              className="rounded-full px-6 border-border hover:bg-foreground/5"
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                setSelectedRole(selectedRoleForDialog)
+                setIsDialogOpen(false)
+              }}
+              className="rounded-full px-6 bg-cyan-500 hover:bg-cyan-600 text-white"
+            >
+              Apply for this Role
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
