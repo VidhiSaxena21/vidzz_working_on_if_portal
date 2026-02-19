@@ -80,7 +80,10 @@ export default function CompaniesPage() {
         
             <SelectContent
               position="popper"
-              className="z-50"
+              side="bottom"
+              align="start"
+              sideOffset={6}
+              className="z-[9999] bg-popover border border-border shadow-2xl rounded-xl"
               sideOffset={5}
             >
               <SelectItem value="all">All Roles</SelectItem>
