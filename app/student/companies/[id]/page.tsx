@@ -304,7 +304,7 @@ export default function CompanyDetailsPage() {
                             </div>
                           </div>
 
-                          <p className="text-muted-foreground text-sm line-clamp-2 font-medium">
+                          <p className="text-muted-foreground text-sm font-medium">
                             {role.description}
                           </p>
                         </div>
