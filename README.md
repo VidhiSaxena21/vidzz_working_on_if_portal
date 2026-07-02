@@ -173,6 +173,18 @@ The Internship Fair Portal uses **MongoDB Atlas** as its primary cloud-hosted No
 | `roles` | Stores role definitions and permissions used throughout the platform. |
 
 ---
+## CSV Dataset
+
+The exported datasets are available in the **`data/`** directory of the project.
+
+### Included Files
+
+- `data/companies.csv`
+- `data/students.csv`
+- `data/applications.csv`
+
+These CSV files have been exported from the MongoDB Atlas database and contain the corresponding collection data for companies, students, and internship applications.
+
 
 # Current Database Statistics
 
