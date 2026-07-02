@@ -107,15 +107,19 @@ npm run dev
 
 4. Login with any demo credentials above
 
-## Mock Data
+## Backend Integration
 
-The app uses mock data for demonstration. In production, connect the API services to a real backend:
+The application is connected to a MongoDB Atlas database through the backend APIs. All company, student, user, and application data is retrieved from the database instead of using mock data.
 
-- `lib/api/student.ts` - Student operations
-- `lib/api/company.ts` - Company operations
-- `lib/api/admin.ts` - Admin operations
+The primary collections include:
 
-Update the API endpoints in these files to point to your backend server.
+- Companies
+- Students
+- Users
+- Applications
+- Roles
+
+CSV exports of the primary collections are also included for reference and analysis.
 
 ## Features Implemented
 
@@ -163,3 +167,59 @@ Update the API endpoints in these files to point to your backend server.
 - Real-time notifications
 - Advanced filtering and search
 - Resume parsing and AI-powered matching
+
+
+---
+
+# Database Overview
+
+The Internship Fair Portal uses **MongoDB Atlas** as its primary cloud-hosted NoSQL database for storing and managing platform data. The database is organized into multiple collections that support authentication, company management, student records, and internship applications.
+
+## Database Collections
+
+| Collection | Description |
+|------------|-------------|
+| `companies` | Stores company profiles, contact information, internship details, and company status. |
+| `students` | Stores student profiles, academic information, resumes, and related details. |
+| `users` | Stores authentication credentials, user roles, and account verification status. |
+| `applications` | Stores internship applications submitted by students along with their application status. |
+| `roles` | Stores role definitions and permissions used throughout the platform. |
+
+---
+
+# Current Database Statistics
+
+The platform currently contains the following data in the MongoDB Atlas database.
+
+| Metric | Count |
+|--------|------:|
+| Registered Companies | **24** |
+| Registered Students | **233** |
+| Registered Users | **278** |
+| Internship Applications | **90** |
+
+> **Note:** These statistics represent the current state of the MongoDB Atlas database and may change as new users, companies, and applications are added.
+
+---
+
+# Dataset
+
+The repository includes CSV exports of the primary database collections for analysis, testing, and demonstration purposes.
+
+### Included CSV Files
+
+- `companies.csv`
+- `students.csv`
+- `applications.csv`
+
+These datasets correspond to the MongoDB Atlas collections and contain anonymized platform records.
+
+---
+
+# Database Technology
+
+- **Database:** MongoDB Atlas
+- **Database Type:** NoSQL Document Database
+- **Collections:** Companies, Students, Users, Applications, Roles
+
+MongoDB Atlas enables scalable cloud-based storage, efficient querying, and flexible document structures for managing internship portal data.
