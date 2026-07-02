@@ -200,19 +200,6 @@ The platform currently contains the following data in the MongoDB Atlas database
 
 > **Note:** These statistics represent the current state of the MongoDB Atlas database and may change as new users, companies, and applications are added.
 
----
-
-# Dataset
-
-The repository includes CSV exports of the primary database collections for analysis, testing, and demonstration purposes.
-
-### Included CSV Files
-
-- `companies.csv`
-- `students.csv`
-- `applications.csv`
-
-These datasets correspond to the MongoDB Atlas collections and contain anonymized platform records.
 
 ---
 
