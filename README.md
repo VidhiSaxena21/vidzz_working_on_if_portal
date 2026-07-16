@@ -7,7 +7,7 @@ A comprehensive platform for managing internship applications with role-based ac
 ### Student Dashboard
 - View all available companies and internship positions
 - Search and filter companies
-- Track application status across multiple roles
+- Track application status across multiple rolese
 - Upload and manage resume
 - View personal profile and application history
 
